@@ -73,14 +73,20 @@ class TweetTaskPVP(PVP):
         # our language model's max sequence length.
         text_a = self.shortenable(example.text_a)
 
+        patterns = {
+            1: ([text_a, '. This made me feel:', self.mask], []),
+            2: (['My tweet is: ', text_a, '. Therefore I believe in', self.mask], []),
+            3: (['My tweet is: ', text_a, '. Therefore ', self.mask, 'is important to me'], []),
+            4: (["I think that:", text_a, '. This made me feel ', self.mask], []),
+            5: ([text_a, '. This makes me feel', self.mask], []),
+            6: ([text_a, '. I think that ', self.mask], []),
+            7: ([text_a, '. I feel ', self.mask, ' about it'], [])
+        }
+
         # For each pattern_id, we define the corresponding pattern and return a pair of text a and text b (where text b
         # can also be empty).
-        if self.pattern_id == 1:
-            return [text_a, '. This made me feel:', self.mask], []
-        elif self.pattern_id == 2:
-            return ['My tweet is: ', text_a, '. Therefore I believe in', self.mask], []
-        elif self.pattern_id == 3:
-            return ['My tweet is: ', text_a, '. Therefore ', self.mask, 'is important to me'], []
+        if self.pattern_id  in patterns:
+            return patterns[self.pattern_id]
         else:
             raise ValueError("No pattern implemented for id {}".format(self.pattern_id))
 

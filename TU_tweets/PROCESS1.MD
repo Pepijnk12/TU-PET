@@ -19,6 +19,7 @@
 - Change train, test and unlabeled data. Most of the training set was labeled 'non-moral'.
 - Add new patterns
 - Change hyper-parameters
+- Remove Twitter usernames and urls from tweets
 
 ```{"train_set_before_training": 0.03125, "global_step": 5082, "average_loss": 0.07278807878396036, "train_set_after_training": 0.59375, "test_set_after_training": {"acc": 0.5}}```
 
