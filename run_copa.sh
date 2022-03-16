@@ -1,4 +1,4 @@
-python3 cli.py \
+python cli.py \
 --method pet \
 --pattern_ids 1 2 3 4 \
 --data_dir fewglue-master/FewGLUE/COPA \
@@ -10,3 +10,5 @@ python3 cli.py \
 --pet_per_gpu_train_batch_size 1 \
 --do_train \
 --do_eval
+
+

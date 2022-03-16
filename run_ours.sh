@@ -8,3 +8,4 @@ python3 cli.py \
 --output_dir out-tweet$RANDOM \
 --do_train \
 --do_eval
+

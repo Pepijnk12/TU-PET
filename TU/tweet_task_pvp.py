@@ -75,13 +75,13 @@ class TweetTaskPVP(PVP):
 
         # For each pattern_id, we define the corresponding pattern and return a pair of text a and text b (where text b
         # can also be empty).
-        if self.pattern_id == 0:
+        if self.pattern_id == 1:
             # this corresponds to the pattern [MASK]: a b
             return [text_a, '. This made me feel:', self.mask], []
-        elif self.pattern_id == 1:
+        elif self.pattern_id == 2:
             # this corresponds to the pattern [MASK] News: a || (b)
             return ['My tweet is: ', text_a, '. Therefore I believe in', self.mask], []
-        elif self.pattern_id == 1:
+        elif self.pattern_id == 3:
             # this corresponds to the pattern [MASK] News: a || (b)
             return ['My tweet is: ', text_a, '. Therefore ', self.mask, 'is important to me'], []
         else:
