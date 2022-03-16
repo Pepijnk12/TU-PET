@@ -1,6 +1,6 @@
 ## Second iteration of model:
 ### Summary
-- Accuracy validation set: ??
+- Accuracy validation set: 28,5%
 - 5 samples per label (55 in total) random training samples (most of them non-moral)
 - 200 random validation samples
 - 6775 unlabeled samples
