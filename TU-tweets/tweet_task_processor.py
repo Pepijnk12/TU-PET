@@ -34,16 +34,16 @@ class TweetDataProcessor(DataProcessor):
     TASK_NAME = "tweet-task"
 
     # Set this to the name of the file containing the train examples
-    TRAIN_FILE_NAME = "train.jsonl"
+    TRAIN_FILE_NAME = "data/train.jsonl"
 
     # # Set this to the name of the file containing the dev examples
-    DEV_FILE_NAME = "val.jsonl"
+    DEV_FILE_NAME = "data/val.jsonl"
 
     # Set this to the name of the file containing the test examples
     TEST_FILE_NAME = "test.jsonl"
 
     # Set this to the name of the file containing the unlabeled examples
-    UNLABELED_FILE_NAME = "unlabeled.jsonl"
+    UNLABELED_FILE_NAME = "data/unlabeled.jsonl"
 
     # Set this to a list of all labels in the train + test data
     LABELS = ['authority', 'betrayal', 'care', 'cheating', 'degradation', 'fairness', 'harm', 'loyalty', 'non-moral', 'purity', 'subversion']

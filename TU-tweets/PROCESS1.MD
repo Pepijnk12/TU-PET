@@ -1,0 +1,32 @@
+## First iteration of model:
+### Summary
+- Accuracy validation set: 50% (not fair because predicts non-moral 90% of the time)
+- 32 random training samples (most of them non-moral)
+- 100 random validation samples
+- 6775 unlabeled samples
+- The model predicts non-moral 90% of the time
+- Roberta-base model
+
+#### Compared to original model:
+- Multi-label (9 labels: authority, betrayal, care, cheating, degradation, fairness, harm, loyalty, non-moral, purity, subversion)
+- New dataset
+- New patterns
+- Same hyperparamaters
+
+#### Possible improvements
+- Use larger Roberta model (e.g. roberta-large)
+- Try different language models like Albert and Bert
+- Change train, test and unlabeled data. Most of the training set was labeled 'non-moral'.
+- Add new patterns
+- Change hyper-parameters
+
+
+###Patterns:
+    p1 = text_a, . This made me feel:, self.mask], []
+    p2 = [My tweet is: , text_a, . Therefore I believe in, self.mask], []
+    p3 = [My tweet is: , text_a, . Therefore , self.mask, is important to me], []
+
+- acc-p1: 0.5467 +- 0.0252
+- acc-p2: 0.5367 +- 0.0153
+- acc-p3: 0.49 +- 0.0265
+- acc-all-p: 0.5244 +- 0.0328

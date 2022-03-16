@@ -50,7 +50,7 @@ for corpus in corpora:
                 "tweet": tweet_text
             })
 
-with open("unlabeled.jsonl", 'w+') as f:
+with open("../data/unlabeled.jsonl", 'w+') as f:
     for tweet in unlabeled_tweets:
         f.write(json.dumps(tweet) + "\n")
 
@@ -64,10 +64,10 @@ for tweet in majority_labeled_tweets:
     tweets_per_label[tweet['label']].append(tweet)
 
 print(tweets_per_label)
-with open("train.jsonl", 'w+') as f:
+with open("../data/train.jsonl", 'w+') as f:
     for tweet in majority_labeled_tweets[:TRAIN_COUNT]:
         f.write(json.dumps(tweet) + "\n")
 
-with open("val.jsonl", 'w+') as f:
+with open("../data/val.jsonl", 'w+') as f:
     for tweet in majority_labeled_tweets[TRAIN_COUNT:TRAIN_COUNT+VAL_COUNT]:
         f.write(json.dumps(tweet) + "\n")
