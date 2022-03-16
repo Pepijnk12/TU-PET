@@ -55,8 +55,15 @@ with open("unlabeled.jsonl", 'w+') as f:
         f.write(json.dumps(tweet) + "\n")
 
 
-random.shuffle(majority_labeled_tweets)
+LABELS = ['authority', 'betrayal', 'care', 'cheating', 'degradation', 'fairness', 'harm', 'loyalty', 'non-moral', 'purity', 'subversion']
+tweets_per_label = {}
+for label in LABELS:
+    tweets_per_label[label] = []
 
+for tweet in majority_labeled_tweets:
+    tweets_per_label[tweet['label']].append(tweet)
+
+print(tweets_per_label)
 with open("train.jsonl", 'w+') as f:
     for tweet in majority_labeled_tweets[:TRAIN_COUNT]:
         f.write(json.dumps(tweet) + "\n")
@@ -64,9 +71,3 @@ with open("train.jsonl", 'w+') as f:
 with open("val.jsonl", 'w+') as f:
     for tweet in majority_labeled_tweets[TRAIN_COUNT:TRAIN_COUNT+VAL_COUNT]:
         f.write(json.dumps(tweet) + "\n")
-
-# possible_labels = set()
-# for x in majority_labelled_tweets:
-#     possible_labels.add(x['label'])
-#
-# print(sorted(list(possible_labels)))
