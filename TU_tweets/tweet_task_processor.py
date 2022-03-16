@@ -88,7 +88,7 @@ class TweetDataProcessor(DataProcessor):
     def _create_examples(self, path, set_type, max_examples=-1, skip_first=0):
         """Creates examples for the training and dev sets."""
         examples = []
-
+        print(path)
         with open(path, encoding='utf8') as f:
             for idx, line in enumerate(f):
                 json_line = json.loads(line)

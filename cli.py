@@ -20,8 +20,8 @@ import os
 from typing import Tuple
 
 import torch
-import TU.tweet_task_pvp
-import TU.tweet_task_processor
+import TU_tweets.tweet_task_pvp
+import TU_tweets.tweet_task_processor
 from pet.tasks import PROCESSORS, load_examples, UNLABELED_SET, TRAIN_SET, DEV_SET, TEST_SET, METRICS, DEFAULT_METRICS
 from pet.utils import eq_div
 from pet.wrapper import WRAPPER_TYPES, MODEL_CLASSES, SEQUENCE_CLASSIFIER_WRAPPER, WrapperConfig

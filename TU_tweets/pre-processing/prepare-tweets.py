@@ -1,9 +1,12 @@
 import json
 import random
 from collections import Counter
+import math
 
-TRAIN_COUNT = 32
-VAL_COUNT = 100
+LABELS = ['authority', 'betrayal', 'care', 'cheating', 'degradation', 'fairness', 'harm', 'loyalty', 'non-moral', 'purity', 'subversion']
+LABEL_COUNT = len(LABELS)
+TRAIN_COUNT = LABEL_COUNT * 5
+VAL_COUNT = 200
 
 
 with open("MFTC_V4_text.json") as f:
@@ -54,20 +57,28 @@ with open("../data/unlabeled.jsonl", 'w+') as f:
     for tweet in unlabeled_tweets:
         f.write(json.dumps(tweet) + "\n")
 
+random.shuffle(majority_labeled_tweets)
+with open("../data/val.jsonl", 'w+') as f:
+    for tweet in majority_labeled_tweets[:VAL_COUNT]:
+        f.write(json.dumps(tweet) + "\n")
 
-LABELS = ['authority', 'betrayal', 'care', 'cheating', 'degradation', 'fairness', 'harm', 'loyalty', 'non-moral', 'purity', 'subversion']
+
 tweets_per_label = {}
 for label in LABELS:
     tweets_per_label[label] = []
 
-for tweet in majority_labeled_tweets:
+for tweet in majority_labeled_tweets[VAL_COUNT:]:
     tweets_per_label[tweet['label']].append(tweet)
 
-print(tweets_per_label)
+samples_per_label = int(math.ceil(TRAIN_COUNT / LABEL_COUNT))
+
+train_tweets = []
+for label in LABELS:
+    train_tweets.extend(tweets_per_label[label][:samples_per_label])
+
+random.shuffle(train_tweets)
+
 with open("../data/train.jsonl", 'w+') as f:
-    for tweet in majority_labeled_tweets[:TRAIN_COUNT]:
+    for tweet in train_tweets:
         f.write(json.dumps(tweet) + "\n")
 
-with open("../data/val.jsonl", 'w+') as f:
-    for tweet in majority_labeled_tweets[TRAIN_COUNT:TRAIN_COUNT+VAL_COUNT]:
-        f.write(json.dumps(tweet) + "\n")

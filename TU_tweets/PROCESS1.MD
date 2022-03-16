@@ -5,21 +5,22 @@
 - 100 random validation samples
 - 6775 unlabeled samples
 - The model predicts non-moral 90% of the time
-- Roberta-base model
+- ```roberta-base``` model
 
 #### Compared to original model:
-- Multi-label (9 labels: authority, betrayal, care, cheating, degradation, fairness, harm, loyalty, non-moral, purity, subversion)
+- Multi-label (11 labels: authority, betrayal, care, cheating, degradation, fairness, harm, loyalty, non-moral, purity, subversion)
 - New dataset
 - New patterns
 - Same hyperparamaters
 
 #### Possible improvements
-- Use larger Roberta model (e.g. roberta-large)
+- Use larger Roberta model (e.g. ```roberta-large```)
 - Try different language models like Albert and Bert
 - Change train, test and unlabeled data. Most of the training set was labeled 'non-moral'.
 - Add new patterns
 - Change hyper-parameters
 
+```{"train_set_before_training": 0.03125, "global_step": 5082, "average_loss": 0.07278807878396036, "train_set_after_training": 0.59375, "test_set_after_training": {"acc": 0.5}}```
 
 ###Patterns:
     p1 = text_a, . This made me feel:, self.mask], []
