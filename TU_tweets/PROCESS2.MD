@@ -21,3 +21,19 @@
 - acc-p2: 0.2683 +- 0.0388
 - acc-p3: 0.2717 +- 0.0252
 - acc-all-p: 0.2656 +- 0.0342
+
+### Verbalizer:
+```    VERBALIZER = {
+        'authority': ['authority', 'force', 'government', 'jurisdiction', 'rule'],
+        'betrayal': ['betrayal', 'deception', 'dishonest', 'treason'],
+        'care': ['care', 'responsibility', 'protection', 'trust'],
+        'cheating': ['cheating', 'lying', 'unfair'],
+        'degradation': ['degradation', 'deception', 'fraud', 'dishonest', 'dishonest'],
+        'fairness': ['fairness', "equality", "equal", "fair", "justice", "honesty", "integrity", "balanced", "truth"],
+        'harm': ['harm', "pain", "hurt", "damage", "violence", "loss", "vandalism"],
+        'loyalty': ['loyalty', "faith", "support", "honesty", "honor", "devotion"],
+        'non-moral': ['neutral'],
+        'purity': ['purity', "clean", "pure", "clean", "pure"],
+        'subversion': ['destruction', 'defeat', 'revolution']
+    }
+```
