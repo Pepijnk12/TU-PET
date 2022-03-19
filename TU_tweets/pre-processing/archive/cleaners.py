@@ -4,7 +4,6 @@ from ekphrasis.classes.segmenter import Segmenter
 from ekphrasis.classes.preprocessor import TextPreProcessor
 from ekphrasis.classes.tokenizer import SocialTokenizer
 from ekphrasis.dicts.emoticons import emoticons
-import emoji
 
 nlp = spacy.load('en_core_web_lg')
 
@@ -73,7 +72,7 @@ seg_tw = Segmenter(corpus="twitter")
 
 # This preprocessing method was used for our experiments.
 def cleaner5(tweet):
-    tweet = emoji.demojize(tweet)
+    tweet = remove_emojis(tweet)
     return cleaner4(tweet)
 
 

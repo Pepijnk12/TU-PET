@@ -39,6 +39,13 @@ def annotationStrategy1(annotations):
     return getValues(selectedAnnotations)
 
 
+def annotationStrategy2(annotations):
+    # Unanimous vote
+    addedValues = list(set((",".join([annotator['annotation'] for annotator in annotations])).split(",")))
+    if len(addedValues) == 1:
+        return getValues(addedValues)
+    return getValues([])
+
 def preprocessStrategy0(rawText):
     return rawText
 
@@ -73,7 +80,7 @@ def jsonToCsv(output, corpusName):
     return df.to_csv(f"./processed/{corpusName}_{strategy}.csv", index=False)
 
 
-def mergeCorpuses(corpuses):
+def mergeCorpuses(all_filenames):
     combined_csv = pd.concat([pd.read_csv('./processed/' + f + f'_{strategy}.csv') for f in all_filenames])
     # export all to csv
     combined_csv.to_csv(f'./processed/MFTC_{strategy}.csv', index=False, encoding='utf-8-sig')
@@ -87,6 +94,21 @@ if __name__ == '__main__':
 
     with open(path) as rawJson:
         data = json.load(rawJson)
+        all_tweets = []
+        for corpus in data:
+            corpusName = corpus['Corpus']
+            for tweet in tqdm(corpus['Tweets'], desc=f'Processing {corpusName:>{10}}'):
+                if tweet['tweet_text'] == DUMMY_TEXT:
+                    continue
+                text = preprocess[strategy](tweet['tweet_text'])
+                all_tweets.append({'tweet': preprocess[strategy](tweet['tweet_text']), 'annotations': tweet['annotations']})
+
+        with open("all_tweets.json", "w+") as f:
+            json.dump(all_tweets, f)
+
+
+    with open(path) as rawJson:
+        data = json.load(rawJson)
         for corpus in data:
             for key, _ in output.items():
                 output[key] = []
@@ -94,7 +116,7 @@ if __name__ == '__main__':
             for tweet in tqdm(corpus['Tweets'], desc=f'Processing {corpusName:>{10}}'):
                 if tweet['tweet_text'] == DUMMY_TEXT:
                     continue
-                values = annotationStrategy1(tweet['annotations'])
+                values = annotationStrategy2(tweet['annotations'])
                 text = preprocess[strategy](tweet['tweet_text'])
                 if text == "":
                     continue

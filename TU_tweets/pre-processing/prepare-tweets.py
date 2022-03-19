@@ -1,19 +1,12 @@
 import json
 import random
 from collections import Counter
-import math
 
-LABELS = ['authority', 'betrayal', 'care', 'cheating', 'degradation', 'fairness', 'harm', 'loyalty', 'non-moral', 'purity', 'subversion']
+LABELS = ['authority', 'betrayal', 'care', 'cheating', 'degradation', 'fairness', 'harm', 'loyalty', 'non-moral',
+          'purity', 'subversion']
 LABEL_COUNT = len(LABELS)
 TRAIN_COUNT = LABEL_COUNT * 5
 VAL_COUNT = 200
-
-
-with open("MFTC_V4_text.json") as f:
-    corpora = json.load(f)
-
-print("Corpora:", [x['Corpus'] for x in corpora])
-
 
 def get_tweet_label_count(tweet):
     all_tweet_labels = []
@@ -24,7 +17,9 @@ def get_tweet_label_count(tweet):
     return dict(Counter(all_tweet_labels))
 
 
-def get_majority_label(label_counts):
+def get_majority_annotation_label(tweet):
+    label_counts = get_tweet_label_count(tweet)
+
     sorted_label_counts = sorted(label_counts.items(), key=lambda item: item[1], reverse=True)
     if len(sorted_label_counts) == 1:
         return sorted_label_counts[0][0]
@@ -34,51 +29,162 @@ def get_majority_label(label_counts):
     return sorted_label_counts[0][0]
 
 
-majority_labeled_tweets = []
-unlabeled_tweets = []
+def get_unanimous_annotation_label(tweet):
+    all_tweet_labels = set()
+    for annotation_item in tweet['annotations']:
+        labels = annotation_item['annotation'].split(',')
+        for label in labels:
+            all_tweet_labels.add(label)
+    if len(all_tweet_labels) == 1:
+        return all_tweet_labels.pop()
+    return None
 
-# Tweets with 3, 4 or 5 annotators
-for corpus in corpora:
-    for tweet in corpus['Tweets']:
-        tweet_label_counts = get_tweet_label_count(tweet)
-        majority_label = get_majority_label(tweet_label_counts)
-        tweet_text = tweet["tweet_text"].replace("\n", "")
-        if majority_label:
-            majority_labeled_tweets.append({
+
+def get_annotated_tweets(vote_type):
+    labeled_tweets = []
+    unlabeled_tweets = []
+
+    # Tweets with 3, 4 or 5 annotators
+    for tweet in all_tweets:
+        if vote_type == "majority":
+            tweet_label = get_majority_annotation_label(tweet)
+        elif vote_type == "unanimous":
+            tweet_label = get_unanimous_annotation_label(tweet)
+        else:
+            raise Exception("Please give a valid vote_type")
+
+        tweet_text = tweet["tweet"]
+
+        if tweet_label:
+            labeled_tweets.append({
                 "tweet": tweet_text,
-                "label": majority_label
+                "label": tweet_label
             })
         else:
             unlabeled_tweets.append({
                 "tweet": tweet_text
             })
 
-with open("../data/unlabeled.jsonl", 'w+') as f:
-    for tweet in unlabeled_tweets:
-        f.write(json.dumps(tweet) + "\n")
-
-random.shuffle(majority_labeled_tweets)
-with open("../data/val.jsonl", 'w+') as f:
-    for tweet in majority_labeled_tweets[:VAL_COUNT]:
-        f.write(json.dumps(tweet) + "\n")
+    return labeled_tweets, unlabeled_tweets
 
 
-tweets_per_label = {}
-for label in LABELS:
-    tweets_per_label[label] = []
+def get_tweets_per_label(tweets):
+    tweets_per_label = {}
+    for label in LABELS:
+        tweets_per_label[label] = []
 
-for tweet in majority_labeled_tweets[VAL_COUNT:]:
-    tweets_per_label[tweet['label']].append(tweet)
+    for tweet in tweets:
+        tweets_per_label[tweet['label']].append(tweet)
 
-samples_per_label = int(math.ceil(TRAIN_COUNT / LABEL_COUNT))
+    return tweets_per_label
 
-train_tweets = []
-for label in LABELS:
-    train_tweets.extend(tweets_per_label[label][:samples_per_label])
+def moral_count(tweets):
+    moral_count = 0
+    for label, label_tweets in get_tweets_per_label(tweets).items():
+        if label != 'non-moral':
+            moral_count += len(label_tweets)
+    return moral_count
 
-random.shuffle(train_tweets)
 
-with open("../data/train.jsonl", 'w+') as f:
-    for tweet in train_tweets:
-        f.write(json.dumps(tweet) + "\n")
+def remove_duplicates(tweets):
+    texts = set()
+    res_tweets = []
+    for tweet in tweets:
+        if tweet['tweet'] not in texts:
+            res_tweets.append(tweet)
+            texts.add(tweet['tweet'])
+    return res_tweets
 
+
+def print_tweet_counts_per_label(tweets):
+    print("Tweet count labeled tweets:")
+    for label, label_tweets in get_tweets_per_label(tweets).items():
+        print(label, len(label_tweets))
+    print("Total moral:", moral_count(tweets))
+
+
+# def run_majority_preprocessing():
+#     majority_labeled_tweets, unlabeled_tweets = get_annotated_tweets("majority")
+#     print("Labeled tweets:", len(majority_labeled_tweets))
+#     print("Unlabeled tweets:", len(unlabeled_tweets))
+#
+#     print_tweet_counts_per_label(majority_labeled_tweets)
+
+    # with open("../data/unlabeled.jsonl", 'w+') as f:
+    #     for tweet in unlabeled_tweets:
+    #         f.write(json.dumps(tweet) + "\n")
+    #
+    # random.shuffle(majority_labeled_tweets)
+    # with open("../data/val.jsonl", 'w+') as f:
+    #     for tweet in majority_labeled_tweets[:VAL_COUNT]:
+    #         f.write(json.dumps(tweet) + "\n")
+    #
+    #
+    # tweets_per_label = get_tweets_per_label(majority_labeled_tweets[VAL_COUNT:])
+    #
+    # samples_per_label = int(math.ceil(TRAIN_COUNT / LABEL_COUNT))
+    # train_tweets = []
+    # for label in LABELS:
+    #     train_tweets.extend(tweets_per_label[label][:samples_per_label])
+    #
+    # random.shuffle(train_tweets)
+    #
+    # with open("../data/train.jsonl", 'w+') as f:
+    #     for tweet in train_tweets:
+    #         f.write(json.dumps(tweet) + "\n")
+
+
+def minimal_tweet_length(tweets, length):
+    return [tweet for tweet in tweets if len(tweet['tweet']) > length]
+
+def store_jsonl(obj, filename):
+    with open(filename, 'w+') as f:
+        for tweet in obj:
+            f.write(json.dumps(tweet) + "\n")
+
+def remove_non_moral(labeled_tweets, remove_num):
+
+    res_labeled_tweets = []
+    for tweet in labeled_tweets:
+        if tweet['label'] == "non-moral" and remove_num > 0:
+            remove_num -= 1
+        else:
+            res_labeled_tweets.append(tweet)
+    return res_labeled_tweets
+
+def split_val_test(labeled_tweets, unlabeled_tweets):
+    random.shuffle(labeled_tweets)
+    random.shuffle(unlabeled_tweets)
+
+    with open("../data/unlabeled.jsonl", 'w+') as f:
+        for tweet in unlabeled_tweets:
+            f.write(json.dumps(tweet) + "\n")
+
+    print("Labeled tweets:", len(labeled_tweets))
+    print("Unlabeled tweets:", len(unlabeled_tweets))
+
+    approx_test_size = 100
+    ratio_test_size = approx_test_size / len(labeled_tweets)
+
+    tweets_per_label = get_tweets_per_label(labeled_tweets)
+
+    train_set = []
+    val_set = []
+
+    for _, v in tweets_per_label.items():
+        split_index = round(ratio_test_size * len(v))
+        train_set.extend(v[:split_index])
+        val_set.extend(v[split_index:])
+
+    store_jsonl(train_set, "../data/train.jsonl")
+    store_jsonl(val_set, "../data/val.jsonl")
+
+if __name__ == '__main__':
+    with open("all_tweets.json") as f:
+        all_tweets = remove_duplicates(json.load(f))
+
+    labeled_tweets, unlabeled_tweets = get_annotated_tweets("unanimous")
+    labeled_tweets = minimal_tweet_length(labeled_tweets, 50)
+    labeled_tweets = remove_non_moral(labeled_tweets, 3200)
+    print_tweet_counts_per_label(labeled_tweets)
+    split_val_test(labeled_tweets, unlabeled_tweets)
