@@ -1,3 +1,5 @@
+# Wrong pre-processed data!
+
 ## First iteration of model:
 ### Summary
 - Accuracy validation set: 50% (not fair because predicts non-moral 90% of the time)

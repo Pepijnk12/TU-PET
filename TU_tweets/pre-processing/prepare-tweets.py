@@ -4,9 +4,8 @@ from collections import Counter
 
 LABELS = ['authority', 'betrayal', 'care', 'cheating', 'degradation', 'fairness', 'harm', 'loyalty', 'non-moral',
           'purity', 'subversion']
-LABEL_COUNT = len(LABELS)
-TRAIN_COUNT = LABEL_COUNT * 5
-VAL_COUNT = 200
+MAX_UNLABELED_SIZE = 10000
+MAX_VAL_SIZE = 1000
 
 def get_tweet_label_count(tweet):
     all_tweet_labels = []
@@ -96,6 +95,15 @@ def remove_duplicates(tweets):
     return res_tweets
 
 
+def get_tweet_counts_per_label(tweets):
+    d = {}
+    for label, label_tweets in get_tweets_per_label(tweets).items():
+        d[label] = len(label_tweets)
+    d['total_moral'] = moral_count(tweets)
+    d['total'] = len(tweets)
+    return d
+
+
 def print_tweet_counts_per_label(tweets):
     print("Tweet count labeled tweets:")
     for label, label_tweets in get_tweets_per_label(tweets).items():
@@ -152,9 +160,14 @@ def remove_non_moral(labeled_tweets, remove_num):
             res_labeled_tweets.append(tweet)
     return res_labeled_tweets
 
+def store_set_statistics(tweets, filename):
+    with open(filename, 'w+') as f:
+        json.dump(get_tweet_counts_per_label(tweets), f)
+
 def split_val_test(labeled_tweets, unlabeled_tweets):
     random.shuffle(labeled_tweets)
     random.shuffle(unlabeled_tweets)
+    unlabeled_tweets = unlabeled_tweets[:MAX_UNLABELED_SIZE]
 
     with open("../data/unlabeled.jsonl", 'w+') as f:
         for tweet in unlabeled_tweets:
@@ -176,6 +189,14 @@ def split_val_test(labeled_tweets, unlabeled_tweets):
         train_set.extend(v[:split_index])
         val_set.extend(v[split_index:])
 
+    val_set = val_set[:MAX_VAL_SIZE]
+    print("Train set count:", len(train_set))
+    print("Val set count:", len(val_set))
+    print("Unlabeled set count:", len(unlabeled_tweets))
+
+    store_set_statistics(train_set, "../data/train_stats.json")
+    store_set_statistics(val_set, "../data/val_stats.json")
+
     store_jsonl(train_set, "../data/train.jsonl")
     store_jsonl(val_set, "../data/val.jsonl")
 
@@ -185,6 +206,6 @@ if __name__ == '__main__':
 
     labeled_tweets, unlabeled_tweets = get_annotated_tweets("unanimous")
     labeled_tweets = minimal_tweet_length(labeled_tweets, 50)
-    labeled_tweets = remove_non_moral(labeled_tweets, 3200)
+    labeled_tweets = remove_non_moral(labeled_tweets, 3400)
     print_tweet_counts_per_label(labeled_tweets)
     split_val_test(labeled_tweets, unlabeled_tweets)

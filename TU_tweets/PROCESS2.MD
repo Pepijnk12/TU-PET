@@ -1,3 +1,5 @@
+# Wrong pre-processed data!
+
 ## Second iteration of model:
 ### Summary
 - Accuracy validation set: 28,5%
