@@ -59,7 +59,7 @@ class TweetTaskPVP(PVP):
         'loyalty': ['loyalty', "faith", "support", "honesty", "honor", "devotion"],
         'non-moral': ['neutral'],
         'purity': ['purity', "clean", "pure", "clean", "pure"],
-        'subversion': ['destruction', 'defeat', 'revolution']
+        'subversion': ['subversion', 'destruction', 'defeat', 'revolution']
     }
 
     def get_parts(self, example: InputExample):
