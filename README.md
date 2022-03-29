@@ -49,7 +49,7 @@ This repository contains the code for [Exploiting Cloze Questions for Few-Shot T
         <td align="right"><b>78.4</b></td>
     </tr>
 </table>
-    
+
 <sup>*Note*: To exactly reproduce the above results, make sure to use v1.1.0 (`--branch v1.1.0`).</sup>
 
 ## 📑 Contents
@@ -86,7 +86,7 @@ To train and evaluate a PET model for one of the supported tasks, simply run the
 	--output_dir $OUTPUT_DIR \
 	--do_train \
 	--do_eval
-    
+
  where
  - `$PATTERN_IDS` specifies the PVPs to use. For example, if you want to use *all* patterns, specify `PATTERN_IDS 0 1 2 3 4` for AG's News and Yahoo Questions or `PATTERN_IDS 0 1 2 3` for Yelp Reviews and MNLI.
  - `$DATA_DIR` is the directory containing the train and test files (check `tasks.py` to see how these files should be named and formatted for each task).
@@ -94,9 +94,9 @@ To train and evaluate a PET model for one of the supported tasks, simply run the
  - `$MODEL_NAME` is the name of a pretrained model (e.g., `roberta-large` or `albert-xxlarge-v2`) or the path to a pretrained model.
  - `$TASK_NAME` is the name of the task to train and evaluate on.
  - `$OUTPUT_DIR` is the name of the directory in which the trained model and evaluation results are saved.
- 
+
 You can additionally specify various training parameters for both the ensemble of PET models corresponding to individual PVPs (prefix `--pet_`) and for the final sequence classification model (prefix `--sc_`). For example, the default parameters used for our SuperGLUE evaluation are:
- 
+
  	--pet_per_gpu_eval_batch_size 8 \
 	--pet_per_gpu_train_batch_size 2 \
 	--pet_gradient_accumulation_steps 8 \
@@ -109,7 +109,7 @@ You can additionally specify various training parameters for both the ensemble o
 	--sc_max_steps 5000 \
 	--sc_max_seq_length 256 \
     --sc_repetitions 1
-    
+
 For each pattern `$P` and repetition `$I`, running the above command creates a directory `$OUTPUT_DIR/p$P-i$I` that contains the following files:
   - `pytorch_model.bin`: the finetuned model, possibly along with some model-specific files (e.g, `spiece.model`, `special_tokens_map.json`)
   - `wrapper_config.json`: the configuration of the model being used
@@ -119,7 +119,7 @@ For each pattern `$P` and repetition `$I`, running the above command creates a d
   - `eval_logits.txt`: the model's prediction on the evaluation data
   - `results.json`: a json file containing results such as the model's final accuracy
   - `predictions.jsonl`: a prediction file for the evaluation set in the SuperGlue format
-  
+
 The final (distilled) model for each repetition `$I` can be found in `$OUTPUT_DIR/final/p0-i$I`, which contains the same files as described above.
 
 🚨 If your GPU runs out of memory during training, you can try decreasing both the `pet_per_gpu_train_batch_size` and the `sc_per_gpu_unlabeled_batch_size` while increasing both `pet_gradient_accumulation_steps` and `sc_gradient_accumulation_steps`.
@@ -143,7 +143,7 @@ To evaluate a pretrained language model with the default PET patterns and verbal
 
 ### Priming
 
-If you want to use priming, remove the argument `--do_train` and add the arguments `--priming --no_distillation` so that all training examples are used for priming and no final distillation is performed. 
+If you want to use priming, remove the argument `--do_train` and add the arguments `--priming --no_distillation` so that all training examples are used for priming and no final distillation is performed.
 
 🚨 Remember that you may need to increase the maximum sequence length to a much larger value, e.g. `--pet_max_seq_length 5000`. This only works with language models that support such long sequences, e.g. XLNet. For using XLNet, you can specify `--model_type xlnet --model_name_or_path xlnet-large-cased --wrapper_type plm`.
 
@@ -153,7 +153,7 @@ Instead of using the command line interface, you can also directly use the PET A
 
 ## 🐶 Train your own PET
 
-To use PET for custom tasks, you need to define two things: 
+To use PET for custom tasks, you need to define two things:
 
 - a **DataProcessor**, responsible for loading training and test data. See `examples/custom_task_processor.py` for an example.
 - a **PVP**, responsible for applying patterns to inputs and mapping labels to natural language verbalizations. See `examples/custom_task_pvp.py` for an example.
@@ -166,7 +166,7 @@ Verbalizers are used to map task labels to words in natural language. For exampl
 
 ```python
 VERBALIZER = {"+1": ["good"], "-1": ["bad"]}
-    
+
 def verbalize(self, label) -> List[str]:
     return self.VERBALIZER[label]       
 ```
@@ -194,7 +194,7 @@ If you do not want to use a pair of sequences, you can simply leave the second s
 def get_parts(self, example: InputExample):
     return [example.text_a, '.', example.text_b, '. Overall, it was ', self.mask], []
 ```
-            
+
 If you want to define several patterns, simply use the `PVP`s `pattern_id` attribute:
 
 ```python
@@ -218,18 +218,18 @@ def get_parts(self, example: InputExample):
 
 ### PET with Multiple Masks
 
-By default, the current implementation of PET and iPET only supports a fixed set of labels that is shared across all examples and verbalizers that correspond to a single token. 
+By default, the implementation of PET and iPET only supports a fixed set of labels that is shared across all examples and verbalizers that correspond to a single token. 
 However, for some tasks it may be necessary to use verbalizers that correspond to multiple tokens ([as described here](http://arxiv.org/abs/2009.07118)).
 To do so, you simply need the following two modifications:
 
 1) Add the following lines in your task's **DataProcessor** (see `examples/custom_task_processor.py`):
- 
+
    ```python
    from pet.tasks import TASK_HELPERS
    from pet.task_helpers import MultiMaskTaskHelper
    TASK_HELPERS['my_task'] = MultiMaskTaskHelper
    ```
-   where ```'my_task'``` is the name of your task. 
+   where ```'my_task'``` is the name of your task.
 
 2) In your **PVP**, make sure that the ``get_parts()`` method always inserts **the maximum number of mask tokens** required for any verbalization. For example, if your verbalizer maps ``+1`` to "really awesome" and ``-1`` to "terrible" and if those are tokenized as ``["really", "awe", "##some"]`` and ``["terrible"]``, respectively, your ``get_parts()`` method should always return a sequence that contains exactly 3 mask tokens.
 
