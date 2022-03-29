@@ -127,7 +127,7 @@ The final (distilled) model for each repetition `$I` can be found in `$OUTPUT_DI
 
 ### iPET Training and Evaluation
 
-To train and evaluate an iPET model for one of the supported tasks, simply run the same command as above, but replace `--method pet` with `--method ipet`. There are various additional iPET parameters that you can modify; all of them are prefixed with `--ipet_`.
+To train and evaluate an iPET model for one of the supported tasks, run the same command as above, but replace `--method pet` with `--method ipet`. There are various additional iPET parameters that you can modify; all of them are prefixed with `--ipet_`.
 
 For each generation `$G`, pattern `$P` and iteration `$I`, this creates a directory `$OUTPUT_DIR/g$G/p$P-i$I` that is structured as for regular PET. The final (distilled) model can again be found in `$OUTPUT_DIR/final/p0-i$I`.
 
@@ -218,7 +218,7 @@ def get_parts(self, example: InputExample):
 
 ### PET with Multiple Masks
 
-By default, the implementation of PET and iPET only supports a fixed set of labels that is shared across all examples and verbalizers that correspond to a single token. 
+By default, the implementation of PET and iPET only supports a fixed set of labels that is shared across all examples and verbalizers that correspond to a single token.
 However, for some tasks it may be necessary to use verbalizers that correspond to multiple tokens ([as described here](http://arxiv.org/abs/2009.07118)).
 To do so, you simply need the following two modifications:
 
