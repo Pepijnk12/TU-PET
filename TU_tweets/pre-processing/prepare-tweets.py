@@ -39,12 +39,12 @@ def get_unanimous_annotation_label(tweet):
     return None
 
 
-def get_annotated_tweets(vote_type):
+def get_annotated_tweets(tweets, vote_type):
     labeled_tweets = []
     unlabeled_tweets = []
 
     # Tweets with 3, 4 or 5 annotators
-    for tweet in all_tweets:
+    for tweet in tweets:
         if vote_type == "majority":
             tweet_label = get_majority_annotation_label(tweet)
         elif vote_type == "unanimous":
@@ -204,7 +204,11 @@ if __name__ == '__main__':
     with open("all_tweets.json") as f:
         all_tweets = remove_duplicates(json.load(f))
 
-    labeled_tweets, unlabeled_tweets = get_annotated_tweets("unanimous")
+    # with open("all_tweets_cleaned.json", "w+") as f:
+    #     cleaned_tweets = minimal_tweet_length(all_tweets, 50)
+    #     json.dump(cleaned_tweets, f)
+
+    labeled_tweets, unlabeled_tweets = get_annotated_tweets(all_tweets, "unanimous")
     labeled_tweets = minimal_tweet_length(labeled_tweets, 50)
     labeled_tweets = remove_non_moral(labeled_tweets, 3400)
     print_tweet_counts_per_label(labeled_tweets)
