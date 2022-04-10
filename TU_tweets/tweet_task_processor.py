@@ -18,9 +18,11 @@ This file shows an example of a DataProcessor for a new task.
 
 import json
 import os
-from typing import List
+from typing import List, Dict, Optional
 
-from pet.task_helpers import MultiMaskTaskHelper
+import torch
+
+from pet.task_helpers import TaskHelper
 from pet.tasks import DataProcessor, PROCESSORS, TASK_HELPERS, METRICS
 from pet.utils import InputExample
 
@@ -105,5 +107,34 @@ class TweetDataProcessor(DataProcessor):
 PROCESSORS[TweetDataProcessor.TASK_NAME] = TweetDataProcessor
 METRICS[TweetDataProcessor.TASK_NAME] = ["acc", "f1-macro"]
 
+
+class TweetTaskHelper(TaskHelper):
+    def train_step(self, batch: Dict[str, torch.Tensor], **kwargs) -> Optional[torch.Tensor]:
+        """
+        Custom implementation of the train step for this task.
+
+        :param batch: a batch of examples
+        :return: a scalar loss tensor
+        """
+        import tensorflow as tf
+        print(batch)
+        assert False
+        bce = tf.keras.losses.BinaryCrossentropy(
+            from_logits=True,
+            reduction='none'
+        )
+        print("BCE", bce(y_true, y_pred).numpy())
+        pass
+
+    def eval_step(self, batch: Dict[str, torch.Tensor], **kwargs) -> Optional[torch.Tensor]:
+        """
+        Custom implementation of the eval step for this task.
+
+        :param batch: a batch of examples
+        :return: a tensor of logits
+        """
+        pass
+
 # optional: if you have to use verbalizers that correspond to multiple tokens, uncomment the following line
-# TASK_HELPERS[MyTaskDataProcessor.TASK_NAME] = MultiMaskTaskHelper
+# TASK_HELPERS[TweetDataProcessor.TASK_NAME] = MultiMaskTaskHelper
+TASK_HELPERS[TweetDataProcessor.TASK_NAME] = TweetTaskHelper

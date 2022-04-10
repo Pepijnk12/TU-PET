@@ -20,7 +20,7 @@
 ```{"train_set_before_training": 0.03, "global_step": 7500, "average_loss": 0.2642059664947291, "train_set_after_training": 0.85, "test_set_after_training": {"acc": 0.809}}```
 
 ###Patterns:
-    p1 = text_a, . This made me feel:, self.mask], []
+    p1 = [text_a, . This made me feel:, self.mask], []
     p2 = [My tweet is: , text_a, . Therefore I believe in, self.mask], []
     p3 = [My tweet is: , text_a, . Therefore , self.mask, is important to me], []
 

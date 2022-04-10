@@ -215,6 +215,7 @@ class PVP(ABC):
         return cls_logits
 
     def _convert_single_mlm_logits_to_cls_logits(self, logits: torch.Tensor) -> torch.Tensor:
+
         m2c = self.mlm_logits_to_cls_logits_tensor.to(logits.device)
         # filler_len.shape() == max_fillers
         filler_len = torch.tensor([len(self.verbalize(label)) for label in self.wrapper.config.label_list],
