@@ -105,7 +105,8 @@ class TweetDataProcessor(DataProcessor):
 
 # register the processor for this task with its name
 PROCESSORS[TweetDataProcessor.TASK_NAME] = TweetDataProcessor
-METRICS[TweetDataProcessor.TASK_NAME] = ["acc", "f1-macro"]
+# METRICS[TweetDataProcessor.TASK_NAME] = ["acc", "f1-macro"]
+METRICS[TweetDataProcessor.TASK_NAME] = ["multilabel"]
 
 
 class TweetTaskHelper(TaskHelper):
@@ -116,14 +117,21 @@ class TweetTaskHelper(TaskHelper):
         :param batch: a batch of examples
         :return: a scalar loss tensor
         """
-        import tensorflow as tf
         print(batch)
+        inputs = self.wrapper.generate_default_inputs(batch)
+        labels_set = batch['labels']
+
+        stripped_labels = []
+        for labels in labels_set:
+            stripped_labels.append([label for label in labels if label != -1])
+        print(stripped_labels)
+        print("Prediction scores", self.wrapper.model(**inputs)[0])
+        # prediction_scores = self.wrapper.model(**inputs)[0].view(-1, self.wrapper.model.config.vocab_size)
+        prediction_scores = self.wrapper.model(**inputs)[0]
+        bce = torch.nn.BCEWithLogitsLoss()
+        print(prediction_scores)
+        print("BCE", bce(prediction_scores, torch.Tensor(stripped_labels)))
         assert False
-        bce = tf.keras.losses.BinaryCrossentropy(
-            from_logits=True,
-            reduction='none'
-        )
-        print("BCE", bce(y_true, y_pred).numpy())
         pass
 
     def eval_step(self, batch: Dict[str, torch.Tensor], **kwargs) -> Optional[torch.Tensor]:

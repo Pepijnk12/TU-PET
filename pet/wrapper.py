@@ -399,6 +399,7 @@ class TransformerModelWrapper:
 
     def _generate_dataset(self, data: List[InputExample], labelled: bool = True, priming: bool = False):
         features = self._convert_examples_to_features(data, labelled=labelled, priming=priming)
+        print([f.label for f in features])
         feature_dict = {
             'input_ids': torch.tensor([f.input_ids for f in features], dtype=torch.long),
             'attention_mask': torch.tensor([f.attention_mask for f in features], dtype=torch.long),

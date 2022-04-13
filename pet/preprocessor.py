@@ -14,6 +14,7 @@ from abc import ABC, abstractmethod
 from typing import List
 
 import numpy as np
+import torch
 
 from pet.utils import InputFeatures, InputExample, PLMInputFeatures
 from pet.pvp import PVP, PVPS
@@ -80,7 +81,13 @@ class MLMPreprocessor(Preprocessor):
         assert len(attention_mask) == self.wrapper.config.max_seq_length
         assert len(token_type_ids) == self.wrapper.config.max_seq_length
 
-        label = self.label_map[example.label] if example.label is not None else -100
+        label_indices = [self.label_map[x] for x in example.label.split(',')]
+
+
+        one_hot_labels = [0] * len(self.label_map)
+        for x in label_indices:
+            one_hot_labels[x] = 1
+
         logits = example.logits if example.logits else [-1]
 
         if labelled:
@@ -92,7 +99,7 @@ class MLMPreprocessor(Preprocessor):
             mlm_labels = [-1] * self.wrapper.config.max_seq_length
 
         return InputFeatures(input_ids=input_ids, attention_mask=attention_mask, token_type_ids=token_type_ids,
-                             label=label, mlm_labels=mlm_labels, logits=logits, idx=example.idx)
+                             label=one_hot_labels, mlm_labels=mlm_labels, logits=logits, idx=example.idx)
 
 
 class PLMPreprocessor(MLMPreprocessor):

@@ -793,7 +793,7 @@ TASK_HELPERS = {
 
 METRICS = {
     "cb": ["acc", "f1-macro"],
-    "multirc": ["acc", "f1", "em"]
+    "multirc": ["acc", "f1", "em"],
 }
 
 DEFAULT_METRICS = ["acc"]

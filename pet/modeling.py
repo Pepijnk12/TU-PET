@@ -430,9 +430,6 @@ def train_single_model(model: TransformerModelWrapper, train_data: List[InputExa
 
     model.model.to(device)
 
-    if train_data and return_train_set_results:
-        results_dict['train_set_before_training'] = evaluate(model, train_data, eval_config)['scores']['acc']
-
     all_train_data = train_data + ipet_train_data
 
     if not all_train_data and not config.use_logits:
@@ -501,6 +498,8 @@ def evaluate(model: TransformerModelWrapper, eval_data: List[InputExample], conf
             scores[metric] = f1_score(results['labels'], predictions, average='macro')
         elif metric == 'em':
             scores[metric] = exact_match(predictions, results['labels'], results['question_ids'])
+        elif metric == 'multilabel':
+            scores[metric] = 0
         else:
             raise ValueError(f"Metric '{metric}' not implemented")
 
