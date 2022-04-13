@@ -22,6 +22,8 @@ from typing import List, Dict, Optional
 
 import torch
 
+from TU_tweets.tweet_task_pvp import TweetTaskPVP
+from pet.pvp import PVPS
 from pet.task_helpers import TaskHelper
 from pet.tasks import DataProcessor, PROCESSORS, TASK_HELPERS, METRICS
 from pet.utils import InputExample
@@ -117,22 +119,28 @@ class TweetTaskHelper(TaskHelper):
         :param batch: a batch of examples
         :return: a scalar loss tensor
         """
-        print(batch)
         inputs = self.wrapper.generate_default_inputs(batch)
-        labels_set = batch['labels']
+        mlm_labels, labels = batch['mlm_labels'], batch['labels']
 
-        stripped_labels = []
-        for labels in labels_set:
-            stripped_labels.append([label for label in labels if label != -1])
-        print(stripped_labels)
-        print("Prediction scores", self.wrapper.model(**inputs)[0])
+        # print(labels_set.size())
+
+        outputs = self.wrapper.model(**inputs)
+        prediction_scores = TweetTaskPVP(self.wrapper).convert_mlm_logits_to_cls_logits(mlm_labels, outputs[0])
+        # print("predictions", prediction_scores)
+        # print("mlm labels", mlm_labels)
+        # print("normal labels", labels)
+        # print(prediction_scores)
         # prediction_scores = self.wrapper.model(**inputs)[0].view(-1, self.wrapper.model.config.vocab_size)
-        prediction_scores = self.wrapper.model(**inputs)[0]
+        # prediction_scores = self.wrapper.model(**inputs)[0]
         bce = torch.nn.BCEWithLogitsLoss()
-        print(prediction_scores)
-        print("BCE", bce(prediction_scores, torch.Tensor(stripped_labels)))
-        assert False
-        pass
+        # print("Prediction size", prediction_scores.size())
+        # print(prediction_scores, mlm_labels)
+        # print("Size predictions", prediction_scores.size())
+        # print(prediction_scores, labels)
+        bce_loss = bce(prediction_scores, labels.float())
+        # print("BCE", bce_loss)
+        return bce_loss
+
 
     def eval_step(self, batch: Dict[str, torch.Tensor], **kwargs) -> Optional[torch.Tensor]:
         """
