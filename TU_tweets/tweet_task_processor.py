@@ -21,7 +21,7 @@ import os
 from typing import List
 
 from pet.task_helpers import MultiMaskTaskHelper
-from pet.tasks import DataProcessor, PROCESSORS, TASK_HELPERS
+from pet.tasks import DataProcessor, PROCESSORS, TASK_HELPERS, METRICS
 from pet.utils import InputExample
 
 
@@ -103,6 +103,7 @@ class TweetDataProcessor(DataProcessor):
 
 # register the processor for this task with its name
 PROCESSORS[TweetDataProcessor.TASK_NAME] = TweetDataProcessor
+METRICS[TweetDataProcessor.TASK_NAME] = ["acc", "f1-macro"]
 
 # optional: if you have to use verbalizers that correspond to multiple tokens, uncomment the following line
 # TASK_HELPERS[MyTaskDataProcessor.TASK_NAME] = MultiMaskTaskHelper
