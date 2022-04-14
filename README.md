@@ -1,4 +1,6 @@
-https://github.com/timoschick/pet
+## Forked from: https://github.com/timoschick/pet
+
+### Blog post: https://pepijnk12.github.io/TU-PET/
 
 # Pattern-Exploiting Training (PET)
 

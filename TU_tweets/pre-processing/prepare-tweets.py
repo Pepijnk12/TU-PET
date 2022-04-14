@@ -7,6 +7,7 @@ LABELS = ['authority', 'betrayal', 'care', 'cheating', 'degradation', 'fairness'
 MAX_UNLABELED_SIZE = 10000
 MAX_VAL_SIZE = 1000
 
+
 def get_tweet_label_count(tweet):
     all_tweet_labels = []
     for annotation_item in tweet['annotations']:
@@ -77,6 +78,7 @@ def get_tweets_per_label(tweets):
 
     return tweets_per_label
 
+
 def moral_count(tweets):
     moral_count = 0
     for label, label_tweets in get_tweets_per_label(tweets).items():
@@ -111,47 +113,17 @@ def print_tweet_counts_per_label(tweets):
     print("Total moral:", moral_count(tweets))
 
 
-# def run_majority_preprocessing():
-#     majority_labeled_tweets, unlabeled_tweets = get_annotated_tweets("majority")
-#     print("Labeled tweets:", len(majority_labeled_tweets))
-#     print("Unlabeled tweets:", len(unlabeled_tweets))
-#
-#     print_tweet_counts_per_label(majority_labeled_tweets)
-
-    # with open("../data/unlabeled.jsonl", 'w+') as f:
-    #     for tweet in unlabeled_tweets:
-    #         f.write(json.dumps(tweet) + "\n")
-    #
-    # random.shuffle(majority_labeled_tweets)
-    # with open("../data/val.jsonl", 'w+') as f:
-    #     for tweet in majority_labeled_tweets[:VAL_COUNT]:
-    #         f.write(json.dumps(tweet) + "\n")
-    #
-    #
-    # tweets_per_label = get_tweets_per_label(majority_labeled_tweets[VAL_COUNT:])
-    #
-    # samples_per_label = int(math.ceil(TRAIN_COUNT / LABEL_COUNT))
-    # train_tweets = []
-    # for label in LABELS:
-    #     train_tweets.extend(tweets_per_label[label][:samples_per_label])
-    #
-    # random.shuffle(train_tweets)
-    #
-    # with open("../data/train.jsonl", 'w+') as f:
-    #     for tweet in train_tweets:
-    #         f.write(json.dumps(tweet) + "\n")
-
-
 def minimal_tweet_length(tweets, length):
     return [tweet for tweet in tweets if len(tweet['tweet']) > length]
+
 
 def store_jsonl(obj, filename):
     with open(filename, 'w+') as f:
         for tweet in obj:
             f.write(json.dumps(tweet) + "\n")
 
-def remove_non_moral(labeled_tweets, remove_num):
 
+def remove_non_moral(labeled_tweets, remove_num):
     res_labeled_tweets = []
     for tweet in labeled_tweets:
         if tweet['label'] == "non-moral" and remove_num > 0:
@@ -160,9 +132,11 @@ def remove_non_moral(labeled_tweets, remove_num):
             res_labeled_tweets.append(tweet)
     return res_labeled_tweets
 
+
 def store_set_statistics(tweets, filename):
     with open(filename, 'w+') as f:
         json.dump(get_tweet_counts_per_label(tweets), f)
+
 
 def split_val_test(labeled_tweets, unlabeled_tweets):
     random.shuffle(labeled_tweets)
@@ -199,6 +173,7 @@ def split_val_test(labeled_tweets, unlabeled_tweets):
 
     store_jsonl(train_set, "../data/train.jsonl")
     store_jsonl(val_set, "../data/val.jsonl")
+
 
 if __name__ == '__main__':
     with open("all_tweets.json") as f:
