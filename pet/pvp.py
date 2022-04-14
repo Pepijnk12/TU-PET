@@ -210,6 +210,8 @@ class PVP(ABC):
         return labels
 
     def convert_mlm_logits_to_cls_logits(self, mlm_labels: torch.Tensor, logits: torch.Tensor) -> torch.Tensor:
+        print("Size logits", logits.size())
+        print("Size mlm_labels", mlm_labels.size())
         masked_logits = logits[mlm_labels >= 0]
         cls_logits = torch.stack([self._convert_single_mlm_logits_to_cls_logits(ml) for ml in masked_logits])
         return cls_logits

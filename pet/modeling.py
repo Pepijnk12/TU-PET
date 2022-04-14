@@ -458,7 +458,12 @@ def train_single_model(model: TransformerModelWrapper, train_data: List[InputExa
         results_dict['average_loss'] = tr_loss
 
     if train_data and return_train_set_results:
-        results_dict['train_set_after_training'] = evaluate(model, train_data, eval_config)['scores']['acc']
+        if 'acc' in evaluate(model, train_data, eval_config)['scores']:
+            results_dict['train_set_after_training'] = evaluate(model, train_data, eval_config)['scores']['acc']
+        elif 'multilabel' in evaluate(model, train_data, eval_config)['scores']:
+            results_dict['train_set_after_training'] = evaluate(model, train_data, eval_config)['scores']['multilabel']
+        else:
+            assert False
 
     return results_dict
 
@@ -499,7 +504,14 @@ def evaluate(model: TransformerModelWrapper, eval_data: List[InputExample], conf
         elif metric == 'em':
             scores[metric] = exact_match(predictions, results['labels'], results['question_ids'])
         elif metric == 'multilabel':
-            scores[metric] = 0
+            # print("Eval data", eval_data)
+            # for i in range(len(results['logits'])):
+            #     print(results['logits'][i], eval_data[i].label)
+            #     print(results['logits'][i], results['labels'][i])
+            #     print()
+            bce = torch.nn.BCEWithLogitsLoss()
+            scores[metric] = bce(torch.Tensor(results['logits']), torch.Tensor(results['labels'])).item()
+
         else:
             raise ValueError(f"Metric '{metric}' not implemented")
 
@@ -558,7 +570,11 @@ def merge_logits(logits_dir: str, output_file: str, reduction: str):
         else:
             with open(results_file, 'r') as fh:
                 results = ast.literal_eval(fh.read())
-                result_train = results['train_set_before_training']
+                if 'train_set_before_training' in results:
+                    result_train = results['train_set_before_training']
+                else:
+                    print("Not the right value")
+                    result_train = 1
 
         with open(logits_file, 'r') as fh:
             for line in fh.read().splitlines():
@@ -660,7 +676,10 @@ def generate_ipet_train_sets(train_data: List[InputExample], unlabeled_data: Lis
         else:
             with open(results_file, 'r') as fh:
                 results = ast.literal_eval(fh.read())
-                result_train = results['train_set_before_training']
+                if 'train_set_before_training' in results:
+                    result_train = results['train_set_before_training']
+                else:
+                    result_train = "no results"
 
         with open(logits_file, 'r') as fh:
             for line in fh.read().splitlines():
