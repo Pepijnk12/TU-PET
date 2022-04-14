@@ -16,7 +16,7 @@ be added. The PVP is responsible for applying patterns to inputs and mapping
 labels to their verbalizations (see the paper for more details on PVPs).
 This file shows an example of a PVP for a new task.
 """
-
+import json
 from typing import List
 
 from pet.pvp import PVP, PVPS
@@ -31,36 +31,29 @@ class TweetTaskPVP(PVP):
     # Set this to the name of the task
     TASK_NAME = "tweet-task"
 
-    # Set this to the verbalizer for the given task: a mapping from the task's labels (which can be obtained using
-    # the corresponding DataProcessor's get_labels method) to tokens from the language model's vocabulary
-    #  LABELS = ['authority', 'betrayal', 'care', 'cheating', 'degradation', 'fairness', 'harm', 'loyalty', 'non-moral', 'purity', 'subversion']
-    # VERBALIZER = {
-    #     'authority': ['authority', 'force', 'government', 'jurisdiction', 'rule'],
-    #     'betrayal': ['betrayal', 'deception', 'dishonest', 'treachery', 'treason'],
-    #     'care': ['care', 'responsibility', 'protection', 'trust'],
-    #     'cheating': ['cheating', 'lying', 'unfair'],
-    #     'degradation': ['degradation', 'deceiving', 'deception', 'defrauding', 'defraud', 'dishonesty', 'dishonest'],
-    #     'fairness': ['fairness', "equality", "equal", "fair", "justice", "honesty", "integrity", "balanced", "truth"],
-    #     'harm': ['harm', "pain", "hurt", "damage", "violence", "loss", "vandalism"],
-    #     'loyalty': ['loyalty', "faith", "support", "honesty", "honor", "devotion"],
-    #     'non-moral': ['non-moral', 'neutral'],
-    #     'purity': ['purity', "clean", "pure", "cleanliness", "pureness"],
-    #     'subversion': ['subversion', 'destruction', 'defeat', 'revolution']
-    # }
 
-    VERBALIZER = {
-        'authority': ['authority', 'force', 'government', 'jurisdiction', 'rule'],
-        'betrayal': ['betrayal', 'deception', 'dishonest', 'treason'],
-        'care': ['care', 'responsibility', 'protection', 'trust'],
-        'cheating': ['cheating', 'lying', 'unfair'],
-        'degradation': ['degradation', 'deception', 'fraud', 'dishonest', 'dishonest'],
-        'fairness': ['fairness', "equality", "equal", "fair", "justice", "honesty", "integrity", "balanced", "truth"],
-        'harm': ['harm', "pain", "hurt", "damage", "violence", "loss", "vandalism"],
-        'loyalty': ['loyalty', "faith", "support", "honesty", "honor", "devotion"],
-        'non-moral': ['neutral'],
-        'purity': ['purity', "clean", "pure", "clean", "pure"],
-        'subversion': ['destruction', 'defeat', 'revolution']
-    }
+    USE_BIG_VERBALIZER = True
+    if USE_BIG_VERBALIZER:
+        with open("TU_tweets/verbalizer_data/big_verbalizer_single_token.json", "r") as f:
+            VERBALIZER = json.load(f)
+            for k, v in VERBALIZER.items():
+                print(k, len(v))
+            VERBALIZER['non-moral'] = ['neutral']
+    else:
+        VERBALIZER = {
+            'authority': ['authority', 'force', 'government', 'jurisdiction', 'rule'],
+            'betrayal': ['betrayal', 'deception', 'dishonest', 'treason'],
+            'care': ['care', 'responsibility', 'protection', 'trust'],
+            'cheating': ['cheating', 'lying', 'unfair'],
+            'degradation': ['degradation', 'deception', 'fraud', 'dishonest', 'dishonest'],
+            'fairness': ['fairness', "equality", "equal", "fair", "justice", "honesty", "integrity", "balanced",
+                         "truth"],
+            'harm': ['harm', "pain", "hurt", "damage", "violence", "loss", "vandalism"],
+            'loyalty': ['loyalty', "faith", "support", "honesty", "honor", "devotion"],
+            'non-moral': ['neutral'],
+            'purity': ['purity', "clean", "pure", "clean", "pure"],
+            'subversion': ['destruction', 'defeat', 'revolution']
+        }
 
     def get_parts(self, example: InputExample):
         """
@@ -80,12 +73,13 @@ class TweetTaskPVP(PVP):
             4: (["I think that:", text_a, '. This made me feel ', self.mask], []),
             5: ([text_a, '. This makes me feel', self.mask], []),
             6: ([text_a, '. I think that ', self.mask], []),
-            7: ([text_a, '. I feel ', self.mask, ' about it'], [])
+            7: ([text_a, '. I feel ', self.mask, ' about it'], []),
+            8: ([text_a, '. I am ', self.mask], [])
         }
 
         # For each pattern_id, we define the corresponding pattern and return a pair of text a and text b (where text b
         # can also be empty).
-        if self.pattern_id  in patterns:
+        if self.pattern_id in patterns:
             return patterns[self.pattern_id]
         else:
             raise ValueError("No pattern implemented for id {}".format(self.pattern_id))
