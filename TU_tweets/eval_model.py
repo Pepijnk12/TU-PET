@@ -6,9 +6,9 @@ import sklearn
 import torch
 import numpy as np
 
-# Leave this here
 from sklearn.preprocessing import MultiLabelBinarizer
 
+# Leave this here
 import TU_tweets.tweet_task_pvp
 import TU_tweets.tweet_task_processor
 from pet import InputExample
@@ -48,8 +48,6 @@ wrapper = TransformerModelWrapper.from_pretrained("models/tweet-iteration3/final
 wrapper.model.to(device)
 eval_data = [InputExample(text_a=x['text_a'], guid=random.randint(0, 10000000)) for x in cleaned_tweets][:SAMPLE_COUNT]
 
-# print(eval_data)
-
 def softmax(x):
     """Compute softmax values for each sets of scores in x."""
     return np.exp(x) / np.sum(np.exp(x), axis=0)
@@ -75,14 +73,8 @@ for x in range(31):
             else:
                 pred.append(0)
         preds.append(pred)
-        # print("Pred:", ', '.join([LABELS[i] for i in threshold_indices]), " || True:", ', '.join(cleaned_tweets[tweet_i]['labels']))
-
-    # predictions = np.argmax(results['logits'], axis=1)
-    # class_idx_to_class_name = {idx: name for idx, name in enumerate(processor.get_labels())}
-    # predictions = [class_idx_to_class_name[prediction] for prediction in predictions]
 
     print("Threshold:", round(0.7 + 0.01 * x, 2))
     print(list(zip(sklearn.metrics.f1_score(y_true.tolist(), preds, average=None), processor.get_labels())))
     print("F1", sklearn.metrics.f1_score(y_true.tolist(), preds, average='weighted'))
     print("Perfect prediction", sklearn.metrics.accuracy_score(y_true.tolist(), preds))
-    print()

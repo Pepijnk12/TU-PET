@@ -23,7 +23,6 @@ from typing import List, Dict, Optional
 import torch
 
 from TU_tweets.tweet_task_pvp import TweetTaskPVP
-from pet.pvp import PVPS
 from pet.task_helpers import TaskHelper
 from pet.tasks import DataProcessor, PROCESSORS, TASK_HELPERS, METRICS
 from pet.utils import InputExample
@@ -107,8 +106,10 @@ class TweetDataProcessor(DataProcessor):
 
 # register the processor for this task with its name
 PROCESSORS[TweetDataProcessor.TASK_NAME] = TweetDataProcessor
-# METRICS[TweetDataProcessor.TASK_NAME] = ["acc", "f1-macro"]
-METRICS[TweetDataProcessor.TASK_NAME] = ["multilabel"]
+METRICS[TweetDataProcessor.TASK_NAME] = ["acc", "f1-macro"]
+
+# Uncomment for multilabel metric
+# METRICS[TweetDataProcessor.TASK_NAME] = ["multilabel"]
 
 
 class TweetTaskHelper(TaskHelper):

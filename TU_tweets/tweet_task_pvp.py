@@ -31,34 +31,29 @@ class TweetTaskPVP(PVP):
     # Set this to the name of the task
     TASK_NAME = "tweet-task"
 
-    # Set this to the verbalizer for the given task: a mapping from the task's labels (which can be obtained using
-    # the corresponding DataProcessor's get_labels method) to tokens from the language model's vocabulary
 
-    MULTIMASK = False
-
-    if MULTIMASK:
-        with open("TU_tweets/data/big_verbalizer.json", "r") as f:
-            VERBALIZER = json.load(f)
-            VERBALIZER['non-moral'] = ['non-moral', 'neutral']
-    else:
-        with open("TU_tweets/data/big_verbalizer_single_token.json", "r") as f:
+    USE_BIG_VERBALIZER = True
+    if USE_BIG_VERBALIZER:
+        with open("TU_tweets/verbalizer_data/big_verbalizer_single_token.json", "r") as f:
             VERBALIZER = json.load(f)
             for k, v in VERBALIZER.items():
                 print(k, len(v))
             VERBALIZER['non-moral'] = ['neutral']
-        # VERBALIZER = {
-        #     'authority': ['authority', 'force', 'government', 'jurisdiction', 'rule'],
-        #     'betrayal': ['betrayal', 'deception', 'dishonest', 'treason'],
-        #     'care': ['care', 'responsibility', 'protection', 'trust'],
-        #     'cheating': ['cheating', 'lying', 'unfair'],
-        #     'degradation': ['degradation', 'deception', 'fraud', 'dishonest', 'dishonest'],
-        #     'fairness': ['fairness', "equality", "equal", "fair", "justice", "honesty", "integrity", "balanced", "truth"],
-        #     'harm': ['harm', "pain", "hurt", "damage", "violence", "loss", "vandalism"],
-        #     'loyalty': ['loyalty', "faith", "support", "honesty", "honor", "devotion"],
-        #     'non-moral': ['neutral'],
-        #     'purity': ['purity', "clean", "pure", "clean", "pure"],
-        #     'subversion': ['destruction', 'defeat', 'revolution']
-        # }
+    else:
+        VERBALIZER = {
+            'authority': ['authority', 'force', 'government', 'jurisdiction', 'rule'],
+            'betrayal': ['betrayal', 'deception', 'dishonest', 'treason'],
+            'care': ['care', 'responsibility', 'protection', 'trust'],
+            'cheating': ['cheating', 'lying', 'unfair'],
+            'degradation': ['degradation', 'deception', 'fraud', 'dishonest', 'dishonest'],
+            'fairness': ['fairness', "equality", "equal", "fair", "justice", "honesty", "integrity", "balanced",
+                         "truth"],
+            'harm': ['harm', "pain", "hurt", "damage", "violence", "loss", "vandalism"],
+            'loyalty': ['loyalty', "faith", "support", "honesty", "honor", "devotion"],
+            'non-moral': ['neutral'],
+            'purity': ['purity', "clean", "pure", "clean", "pure"],
+            'subversion': ['destruction', 'defeat', 'revolution']
+        }
 
     def get_parts(self, example: InputExample):
         """
@@ -72,40 +67,20 @@ class TweetTaskPVP(PVP):
         # our language model's max sequence length.
         text_a = self.shortenable(example.text_a)
 
-        if self.MULTIMASK:
-            # TODO remove words that need more than 3 masks
-            max_length = 0
-            for k, v in self.VERBALIZER.items():
-                m = max(len(get_verbalization_ids(c, self.wrapper.tokenizer, False)) for c in v)
-                if m > max_length:
-                    max_length = m
-
-            num_masks = max_length
-
-            patterns = {
-                1: ([text_a, '. This made me feel:', self.mask * num_masks], []),
-                2: (['My tweet is: ', text_a, '. Therefore I believe in', self.mask * num_masks], []),
-                3: (['My tweet is: ', text_a, '. Therefore ', self.mask * num_masks, 'is important to me'], []),
-                4: (["I think that:", text_a, '. This made me feel ', self.mask * num_masks], []),
-                5: ([text_a, '. This makes me feel', self.mask * num_masks], []),
-                6: ([text_a, '. I think that ', self.mask * num_masks], []),
-                7: ([text_a, '. I feel ', self.mask * num_masks, ' about it'], [])
-            }
-
-        else:
-            patterns = {
-                1: ([text_a, '. This made me feel:', self.mask], []),
-                2: (['My tweet is: ', text_a, '. Therefore I believe in', self.mask], []),
-                3: (['My tweet is: ', text_a, '. Therefore ', self.mask, 'is important to me'], []),
-                4: (["I think that:", text_a, '. This made me feel ', self.mask], []),
-                5: ([text_a, '. This makes me feel', self.mask], []),
-                6: ([text_a, '. I think that ', self.mask], []),
-                7: ([text_a, '. I feel ', self.mask, ' about it'], [])
-            }
+        patterns = {
+            1: ([text_a, '. This made me feel:', self.mask], []),
+            2: (['My tweet is: ', text_a, '. Therefore I believe in', self.mask], []),
+            3: (['My tweet is: ', text_a, '. Therefore ', self.mask, 'is important to me'], []),
+            4: (["I think that:", text_a, '. This made me feel ', self.mask], []),
+            5: ([text_a, '. This makes me feel', self.mask], []),
+            6: ([text_a, '. I think that ', self.mask], []),
+            7: ([text_a, '. I feel ', self.mask, ' about it'], []),
+            8: ([text_a, '. I am ', self.mask], [])
+        }
 
         # For each pattern_id, we define the corresponding pattern and return a pair of text a and text b (where text b
         # can also be empty).
-        if self.pattern_id  in patterns:
+        if self.pattern_id in patterns:
             return patterns[self.pattern_id]
         else:
             raise ValueError("No pattern implemented for id {}".format(self.pattern_id))

@@ -191,10 +191,6 @@ if __name__ == '__main__':
     with open("all_tweets.json") as f:
         all_tweets = remove_duplicates(json.load(f))
 
-    # with open("all_tweets_cleaned.json", "w+") as f:
-    #     cleaned_tweets = minimal_tweet_length(all_tweets, 50)
-    #     json.dump(cleaned_tweets, f)
-
     all_tweets = minimal_tweet_length(all_tweets, 60)
     labeled_tweets, unlabeled_tweets = parse_annotators_multilabel(all_tweets)
 
