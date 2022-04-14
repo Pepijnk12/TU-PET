@@ -1,18 +1,11 @@
----
-layout: post
-title:  "Reproduction of “It’s Not Just Size That Matters” by using the Moral Foundations Twitter Corpus"
-date:   2022-04-14 22:12:08 +0200
-categories: reproduction
----
-
 # Reproduction of "It's Not Just Size That Matters"
 ###### Group 6 - Authors:
-###### Ivor Zagorac, Pepijn Klop, Jason Qiu, Luca Cras 
+###### Ivor Zagorac (4691202), Pepijn Klop (4684311), Jason Qiu (4785770), Luca Cras (4660692)
 
 ### Introduction
 In this blog post, we discuss the reproduction of the paper *It’s Not Just Size That Matters: Small Language Models Are Also Few-Shot Learners* by T. Schick and H. Schütze[^pet-2]. The paper is an update of a paper by the same authors, where they introduce a novel model for few-shot learning, which has orders of magnitude fewer trainable parameters than GPT-3. They call this new method *pattern-exploiting-training* (PET). As can be seen in figure 1, the researchers showed that, by using PET, it was possible to achieve few-shot text classification performance similar to GPT-3 on SuperGLUE with LMs that had *three orders of magnitude fewer parameters*. The authors also developed an iterative version of PET (iPET)[^pet], but in this blog post, we will limit our discussion and reproduction to the base PET implementation.
 
-![](https://i.imgur.com/sjoeNwQ.png =500x)
+![](https://i.imgur.com/sjoeNwQ.png)
 *Figure 1: iPET vs. PET vs. GPT-3, SuperGLUE performance*
 
 In short, PET is a semi-supervised training procedure that reformulates input examples as cloze-style phrases to help language models understand a given task. These phrases are then used to assign soft labels to a large set of unlabeled examples, thereby increasing the overall training set size. Finally, standard supervised training is performed on the resulting training set. This definition is rather vague, so let us explain this further by an example.
@@ -33,7 +26,7 @@ PET no longer has to assign a label without any inherent meaning, and can instea
 
 PET can now answer the more meaningful question of whether "Yes" or "No" is more likely to appear at the masked position, instead of having to answer whether a certain label ($y_0$ or $y_1$) fits better. Another example, this time for entailment classification, can be seen below in figure 1.
 
-![](https://i.imgur.com/MLMB8nN.png =500x)
+![](https://i.imgur.com/MLMB8nN.png)
 *Figure 2: Pattern-Verbalization-Pair, a schematic overview*
 
 
@@ -53,7 +46,7 @@ This dataset was suitable for our task because it was naturally multi-labelled a
 
 However, the dataset was separated from the original tweet texts, so we fetched them by a pre-written script to get the data we needed. Also, tweet texts are messy in nature and we responded to this issue with a wise tweet processing tool, which turned out to improve our accuracy to a great extent. Along with the processing, a noteworthy thing is that we filtered the tweet data and only kept those with a length of at least 60 characters. This helped reduce the potential drawbacks brought by super short tweets. Another issue was that it was not realistic to use all labels from all annotators. We specified a way of choosing among all the available annotations in both single-label and multi-label settings which will be explained later in the blog.
 
-![](https://i.imgur.com/P4y7unJ.png =600x)
+![](https://i.imgur.com/P4y7unJ.png)
 *Figure 3: A tweet and its annotation labels in MFTC_V4.json*
 
 Following the above procedure, we stored our processed tweet data in .jsonl files. Each line of a .jsonl file contains a json object encapsulating a tweet text and an entry of label(s). Some examples are shown below.
@@ -202,6 +195,7 @@ Over the course of our reproducibility project, we worked as a group by planning
 [^bert]: Jacob Devlin et al. "BERT: Pre-training of Deep Bidirectional Transformers for Language Understanding". In: CoRR abs/1810.04805 (2018). arXiv: 1810.04805. URL: https://arxiv.org/abs/1810.04805
 [^roberta]: Yinhan Liu et al. "RoBERTa: A Robustly Optimized BERT Pretraining Approach". In: CoRR abs/1907.11692 (2019). arXiv:1907.11692. URL: https://arxiv.org/abs/1907.11692
 [^bpe]: Rico Sennrich, Barry Haddow, and Alexandra Birch. "Neural Machine Translation of Rare Words with Sub-word Units". In: CoRR abs/1508.07909 (2015). arXiv: 1508.07909. URL: https://arxiv.org/abs/1508.07909
+
 [^mftc]: Morteza Dehghani et al. Moral Foundations Twitter Corpus. URL: https://osf.io/k5n7y/
 [^mfd]: Jeremy Frimer. Moral Foundations Dictionary 2.0. URL: https://osf.io/ezn37/
 [^pet-github]: Timo Schick et al. Pattern-Exploiting Training (PET). URL: https://github.com/timoschick/pet
