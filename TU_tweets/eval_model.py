@@ -63,8 +63,11 @@ LABELS = processor.get_labels()
 mlb = MultiLabelBinarizer(processor.get_labels())
 y_true = mlb.fit_transform([x['labels'] for x in cleaned_tweets[:SAMPLE_COUNT]])
 
+xs = []
+ys = []
 for x in range(31):
     preds = []
+
     for tweet_i, logit in enumerate(results['logits']):
         threshold_indices = []
         pred = []
@@ -83,6 +86,15 @@ for x in range(31):
 
     print("Threshold:", round(0.7 + 0.01 * x, 2))
     print(list(zip(sklearn.metrics.f1_score(y_true.tolist(), preds, average=None), processor.get_labels())))
-    print("F1", sklearn.metrics.f1_score(y_true.tolist(), preds, average='weighted'))
+    print("F1", sklearn.metrics.f1_score(y_true.tolist(), preds, average='macro'))
     print("Perfect prediction", sklearn.metrics.accuracy_score(y_true.tolist(), preds))
     print()
+    xs.append(0.7 + 0.01 * x)
+    ys.append(sklearn.metrics.f1_score(y_true.tolist(), preds, average='macro'))
+
+import matplotlib.pyplot as plt
+plt.plot(xs, ys)
+plt.title("Multilabel classification threshold vs F1 score")
+plt.xlabel("Threshold")
+plt.ylabel("F1 score")
+plt.show()

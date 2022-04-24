@@ -5,7 +5,7 @@ from collections import Counter
 LABELS = ['authority', 'betrayal', 'care', 'cheating', 'degradation', 'fairness', 'harm', 'loyalty', 'non-moral',
           'purity', 'subversion']
 MAX_UNLABELED_SIZE = 10000
-MAX_VAL_SIZE = 1000
+MAX_VAL_SIZE = 800
 
 def get_tweet_label_count(tweet):
     all_tweet_labels = []
@@ -173,43 +173,49 @@ def split_val_test(labeled_tweets, unlabeled_tweets):
         for tweet in unlabeled_tweets:
             f.write(json.dumps(tweet) + "\n")
 
-    print("Labeled tweets:", len(labeled_tweets))
-    print("Unlabeled tweets:", len(unlabeled_tweets))
+    # print("Labeled tweets:", len(labeled_tweets))
+    # print("Unlabeled tweets:", len(unlabeled_tweets))
 
-    approx_test_size = 100
-    ratio_test_size = approx_test_size / len(labeled_tweets)
+    # Every tweet gets at least 5 samples so in total 100 tweets
+    additional_test_size = 100
+    ratio_test_size = additional_test_size / len(labeled_tweets)
 
     tweets_per_label = get_tweets_per_label(labeled_tweets)
 
     train_set = []
     val_set = []
 
-    for _, v in tweets_per_label.items():
+    for k, v in tweets_per_label.items():
         split_index = round(ratio_test_size * len(v))
+        print(k, split_index)
         train_set.extend(v[:split_index])
         val_set.extend(v[split_index:])
 
+    random.shuffle(train_set)
+    random.shuffle(val_set)
     val_set = val_set[:MAX_VAL_SIZE]
+
     print("Train set count:", len(train_set))
     print("Val set count:", len(val_set))
     print("Unlabeled set count:", len(unlabeled_tweets))
 
-    store_set_statistics(train_set, "../data/train_stats.json")
-    store_set_statistics(val_set, "../data/val_stats.json")
+    BASE_DIR = "../data/"
+    store_set_statistics(train_set, BASE_DIR + "train_stats.json")
+    store_set_statistics(val_set,  BASE_DIR + "val_stats.json")
 
-    store_jsonl(train_set, "../data/train.jsonl")
-    store_jsonl(val_set, "../data/val.jsonl")
+    store_jsonl(train_set,  BASE_DIR + "train.jsonl")
+    store_jsonl(val_set,  BASE_DIR + "val.jsonl")
 
 if __name__ == '__main__':
     with open("all_tweets.json") as f:
         all_tweets = remove_duplicates(json.load(f))
+        all_tweets = minimal_tweet_length(all_tweets, 60)
 
     # with open("all_tweets_cleaned.json", "w+") as f:
     #     cleaned_tweets = minimal_tweet_length(all_tweets, 50)
     #     json.dump(cleaned_tweets, f)
 
     labeled_tweets, unlabeled_tweets = get_annotated_tweets(all_tweets, "unanimous")
-    labeled_tweets = minimal_tweet_length(labeled_tweets, 50)
-    labeled_tweets = remove_non_moral(labeled_tweets, 3400)
-    print_tweet_counts_per_label(labeled_tweets)
+    labeled_tweets = remove_non_moral(labeled_tweets, 2860)
+    # print_tweet_counts_per_label(labeled_tweets)
     split_val_test(labeled_tweets, unlabeled_tweets)

@@ -80,7 +80,8 @@ class TweetTaskPVP(PVP):
             4: (["I think that:", text_a, '. This made me feel ', self.mask], []),
             5: ([text_a, '. This makes me feel', self.mask], []),
             6: ([text_a, '. I think that ', self.mask], []),
-            7: ([text_a, '. I feel ', self.mask, ' about it'], [])
+            7: ([text_a, '. I feel ', self.mask, ' about it'], []),
+            8: ([text_a, '. I am ', self.mask], [])
         }
 
         # For each pattern_id, we define the corresponding pattern and return a pair of text a and text b (where text b
